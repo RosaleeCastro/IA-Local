@@ -1,18 +1,29 @@
 import requests
+from config import OLLAMA_BASE_URL, OLLAMA_MODEL
 
-# Esta prueba es parecida a la anterior, pero con una pregunta mas concreta.
-# Sirve para comprobar hasta donde llega el modelo base sin entrenamiento extra.
+# Pregunta mas concreta para medir hasta donde llega el modelo base
+# sin ningun entrenamiento adicional sobre formacion profesional.
 
-response = requests.post(
-    "http://localhost:11434/api/generate",
-    json={
-        "model": "qwen2.5:3b-instruct",
-        # Se le pide al modelo una respuesta sobre formacion profesional.
-        # El texto tambien le pide que diga si no conoce la respuesta.
-        "prompt": "¿Qué es un ciclo formativo de formación profesional? Si tienes la respuesta en tu base de datos, indicala, y si no la tienes, dilo tambien.",
-        "stream": False
-    }
-)
+try:
+    response = requests.post(
+        f"{OLLAMA_BASE_URL}/api/generate",
+        json={
+            "model": OLLAMA_MODEL,
+            "prompt": (
+                "¿Qué es un ciclo formativo de formación profesional? "
+                "Si tienes la respuesta en tu base de datos, indicala, "
+                "y si no la tienes, dilo también."
+            ),
+            "stream": False,
+        },
+        timeout=60,
+    )
+    response.raise_for_status()
+    print(response.json()["response"])
 
-# Mostramos en consola solo el texto de respuesta.
-print(response.json()["response"])
+except requests.exceptions.ConnectionError:
+    print(f"[ERROR] No se puede conectar a Ollama en {OLLAMA_BASE_URL}")
+except requests.exceptions.Timeout:
+    print("[ERROR] Tiempo de espera agotado.")
+except requests.exceptions.HTTPError as e:
+    print(f"[ERROR] Respuesta HTTP inesperada: {e}")

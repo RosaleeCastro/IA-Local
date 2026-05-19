@@ -2,18 +2,17 @@ import os
 import torch
 from peft import PeftModel
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from config import HF_BASE_MODEL, LORA_OUTPUT_DIR, MERGED_OUTPUT_DIR
 
-# Este script une dos piezas:
-# - el modelo base
-# - el adaptador LoRA entrenado
-# El resultado es un modelo "fusionado" que luego puede cargarse directamente.
+# Une el modelo base con el adaptador LoRA entrenado.
+# El resultado es un modelo completo que se puede cargar sin PEFT.
 
 # =========================================================
 # CONFIGURATION
 # =========================================================
-BASE_MODEL = "Qwen/Qwen3.5-4B"
-ADAPTER_PATH = "./boe-qwen35-4b-lora"
-OUTPUT_PATH = "./boe-qwen35-4b-lora-fusionado"
+BASE_MODEL = HF_BASE_MODEL                    # meta-llama/Meta-Llama-3-8B-Instruct
+ADAPTER_PATH = f"./{LORA_OUTPUT_DIR}"         # ./boe-llama3-8b-lora
+OUTPUT_PATH = f"./{MERGED_OUTPUT_DIR}"        # ./boe-llama3-8b-fusionado
 
 
 def main():

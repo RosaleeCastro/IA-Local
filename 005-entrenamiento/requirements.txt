@@ -1,0 +1,11 @@
+# Dependencias para los scripts de consulta a Ollama (001-003, 008)
+requests>=2.31.0
+
+# Dependencias para fine-tuning con LoRA (005, 006, 007)
+# Instalar solo si vas a entrenar un modelo desde HuggingFace
+torch>=2.1.0
+transformers>=4.40.0
+datasets>=2.18.0
+peft>=0.10.0
+trl>=0.8.6
+accelerate>=0.28.0

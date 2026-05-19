@@ -8,22 +8,26 @@ from datasets import Dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from peft import LoraConfig
 from trl import SFTTrainer, SFTConfig
+from config import HF_BASE_MODEL, LORA_OUTPUT_DIR, DATA_DIR as CFG_DATA_DIR
 
-# Este es el script principal del proyecto.
-# Su trabajo es:
-# 1. Leer ejemplos de preguntas y respuestas desde archivos .jsonl
-# 2. Convertir esos ejemplos al formato de texto que espera el modelo
-# 3. Dividir los datos en entrenamiento y validacion
-# 4. Cargar un modelo base de lenguaje
-# 5. Entrenar un adaptador LoRA para especializar ese modelo
-# 6. Guardar el resultado para usarlo despues
+# Fine-tuning del modelo base con adaptador LoRA sobre datos propios.
+# Flujo:
+# 1. Leer ejemplos question/answer desde archivos .jsonl
+# 2. Convertir al formato de texto que espera el modelo
+# 3. Dividir en entrenamiento y validacion
+# 4. Cargar el modelo base de HuggingFace
+# 5. Entrenar el adaptador LoRA
+# 6. Guardar adaptador + tokenizador
+#
+# REQUISITO: necesitas GPU con al menos 8 GB de VRAM, o una CPU potente
+# (sera mucho mas lento). Ejecuta este script en la VM Ubuntu con la GPU.
 
 # =========================================================
 # CONFIGURATION
 # =========================================================
-MODEL_NAME = "Qwen/Qwen3.5-4B"
-DATA_DIR = "materiales"
-OUTPUT_DIR = "boe-qwen35-4b-lora"
+MODEL_NAME = HF_BASE_MODEL          # meta-llama/Meta-Llama-3-8B-Instruct
+DATA_DIR = CFG_DATA_DIR             # materiales/
+OUTPUT_DIR = LORA_OUTPUT_DIR        # boe-llama3-8b-lora
 
 SEED = 42
 VAL_RATIO = 0.05

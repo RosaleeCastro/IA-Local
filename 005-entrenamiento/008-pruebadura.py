@@ -1,19 +1,18 @@
 import json
 import difflib
+import requests
+from config import OLLAMA_BASE_URL, OLLAMA_MODEL, MAIN_JSONL
 
-# Este archivo NO usa un modelo generativo.
-# En su lugar, compara la pregunta del usuario con preguntas ya guardadas
-# en un archivo .jsonl y devuelve la respuesta de la mas parecida.
-# Es una especie de buscador por similitud de texto.
+# Sistema de respuesta en dos capas:
+# 1. Busca en el JSONL si hay una pregunta parecida (similitud de texto).
+# 2. Si no hay coincidencia clara, manda la pregunta directamente a Ollama
+#    con el contexto de los fragmentos mas parecidos (RAG simple).
 
-# -----------------------------
-# CONFIGURATION
-# -----------------------------
-DATA_FILE = "materiales/BOE-A-2023-13221.jsonl"
-MIN_SIMILARITY = 0.90   # raise to 0.95 or 0.98 if you want it even stricter
+MIN_SIMILARITY = 0.60   # umbral para respuesta directa desde JSONL
+RAG_TOP_K = 3           # cuantos fragmentos incluir como contexto para Ollama
+
 
 def load_jsonl(path):
-    # Lee el archivo .jsonl y lo convierte en una lista de diccionarios.
     rows = []
     with open(path, "r", encoding="utf-8") as f:
         for line in f:
@@ -21,62 +20,84 @@ def load_jsonl(path):
             if not line:
                 continue
             item = json.loads(line)
-            q = item["question"].strip()
-            a = item["answer"].strip()
             rows.append({
-                "question": q,
-                "answer": a
+                "question": item["question"].strip(),
+                "answer": item["answer"].strip(),
             })
     return rows
 
+
 def normalize(text):
-    # Pasa el texto a minusculas y elimina espacios sobrantes.
-    # Esto ayuda a comparar preguntas de forma mas consistente.
     return " ".join(text.strip().lower().split())
 
-def find_best_match(user_question, dataset):
-    # Busca la pregunta del dataset que mas se parece a la que ha escrito el usuario.
+
+def find_top_matches(user_question, dataset, top_k=RAG_TOP_K):
     user_q = normalize(user_question)
-
-    best_item = None
-    best_score = 0.0
-
+    scored = []
     for item in dataset:
-        trained_q = normalize(item["question"])
-        # SequenceMatcher devuelve un numero entre 0 y 1.
-        # Cuanto mas cerca de 1, mas parecidos son los textos.
-        score = difflib.SequenceMatcher(None, user_q, trained_q).ratio()
+        score = difflib.SequenceMatcher(None, user_q, normalize(item["question"])).ratio()
+        scored.append((score, item))
+    scored.sort(key=lambda x: x[0], reverse=True)
+    return scored[:top_k]
 
-        if score > best_score:
-            best_score = score
-            best_item = item
 
-    return best_item, best_score
+def ask_ollama(question: str, context_fragments: list[dict]) -> str:
+    # Construye un prompt RAG: contexto + pregunta del usuario.
+    context_text = "\n\n".join(
+        f"Pregunta de referencia: {f['question']}\nRespuesta de referencia: {f['answer']}"
+        for f in context_fragments
+    )
+    prompt = (
+        "Usa los siguientes fragmentos de referencia para responder la pregunta. "
+        "Si los fragmentos no son suficientes, responde con tu conocimiento general.\n\n"
+        f"{context_text}\n\n"
+        f"Pregunta del usuario: {question}\n\n"
+        "Respuesta:"
+    )
+
+    try:
+        resp = requests.post(
+            f"{OLLAMA_BASE_URL}/api/generate",
+            json={"model": OLLAMA_MODEL, "prompt": prompt, "stream": False},
+            timeout=60,
+        )
+        resp.raise_for_status()
+        return resp.json()["response"].strip()
+    except requests.exceptions.ConnectionError:
+        return f"[ERROR] No se puede conectar a Ollama en {OLLAMA_BASE_URL}"
+    except requests.exceptions.Timeout:
+        return "[ERROR] Tiempo de espera agotado esperando respuesta de Ollama."
+    except Exception as e:
+        return f"[ERROR] {e}"
+
 
 def main():
-    # Paso 1: cargar todas las preguntas y respuestas del archivo.
-    dataset = load_jsonl(DATA_FILE)
-
-    print("Dataset loaded.")
-    print("This system answers only with trained questions and answers.")
-    print("Write 'salir' to exit.\n")
+    dataset = load_jsonl(MAIN_JSONL)
+    print(f"Dataset cargado: {len(dataset)} ejemplos.")
+    print("Escribe 'salir' para terminar.\n")
 
     while True:
-        # Paso 2: pedir una pregunta al usuario.
         pregunta = input("Tú: ").strip()
         if pregunta.lower() in ["salir", "exit", "quit"]:
             break
+        if not pregunta:
+            continue
 
-        # Paso 3: buscar la coincidencia mas parecida.
-        item, score = find_best_match(pregunta, dataset)
+        matches = find_top_matches(pregunta, dataset)
+        best_score, best_item = matches[0]
 
-        if item is not None and score >= MIN_SIMILARITY:
-            # Si la similitud es suficientemente alta, devolvemos la respuesta guardada.
-            print("\nModelo:", item["answer"])
-            print(f"(matched trained question with similarity {score:.4f})\n")
+        if best_score >= MIN_SIMILARITY:
+            # Respuesta directa desde el JSONL entrenado
+            print(f"\nModelo (JSONL, similitud {best_score:.2f}):", best_item["answer"])
         else:
-            # Si no hay una coincidencia clara, el sistema responde que no lo sabe.
-            print("\nModelo: No lo sé según el material entrenado.\n")
+            # Fallback: Ollama con los fragmentos mas parecidos como contexto
+            context = [item for _, item in matches]
+            print(f"\n[similitud max {best_score:.2f} — usando Ollama con contexto]")
+            answer = ask_ollama(pregunta, context)
+            print("Modelo (Ollama):", answer)
+
+        print()
+
 
 if __name__ == "__main__":
     main()

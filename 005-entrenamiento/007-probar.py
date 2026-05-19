@@ -1,26 +1,17 @@
 import re
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
+from config import MERGED_OUTPUT_DIR, PROMPT_PREFIX, PROMPT_MIDDLE, MAX_NEW_TOKENS, TEMPERATURE
 
-# Este script sirve para hablar por consola con el modelo ya entrenado.
-# Flujo general:
-# 1. Carga el modelo fusionado
-# 2. Espera una pregunta del usuario
-# 3. Construye el prompt con el formato usado en entrenamiento
-# 4. Genera la respuesta
-# 5. Limpia el texto y lo muestra
+# Chat por consola con el modelo HuggingFace ya entrenado y fusionado.
+# Ejecutar este script en la misma maquina donde se hizo el entrenamiento.
 
 # =========================================================
 # CONFIGURATION
 # =========================================================
-MODEL_PATH = "./boe-qwen35-4b-lora-fusionado"
+MODEL_PATH = f"./{MERGED_OUTPUT_DIR}"
 
-MAX_NEW_TOKENS = 192
-TEMPERATURE = 0.0
 TOP_P = 1.0
-
-PROMPT_PREFIX = "### Pregunta:\n"
-PROMPT_MIDDLE = "\n\n### Respuesta:\n"
 
 
 # =========================================================
