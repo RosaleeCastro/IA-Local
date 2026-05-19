@@ -1,0 +1,1606 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>VeuIA — Dictado inteligente por IA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ============================================================
+         Tokens — Tema oscuro (predeterminado)
+         Paleta: morados profundos, azul-violeta, toques de fucsia
+         ============================================================ */
+      :root,
+      [data-theme="dark"] {
+        --bg:            #110823;
+        --bg-2:          #1a0e30;
+        --surface:       #1f1438;
+        --surface-2:     #281846;
+        --surface-hi:    #321e57;
+        --border:        rgba(216, 180, 254, 0.16);
+        --border-hi:     rgba(232, 121, 249, 0.36);
+        --ring:          rgba(192, 132, 252, 0.40);
+
+        --text:          #f3eaff;
+        --text-soft:     #d3c4f0;
+        --text-mute:     #8d7eb8;
+        --text-faint:    #685a8e;
+
+        /* Marca — morados, lila y fucsia */
+        --violet:        #a855f7;   /* primario */
+        --violet-2:      #9333ea;
+        --indigo:        #c084fc;   /* lila lavanda */
+        --indigo-2:      #b078f0;
+        --fuchsia:       #e879f9;   /* fucsia con presencia */
+        --fuchsia-2:     #d946ef;
+        --fuchsia-soft:  rgba(232, 121, 249, 0.18);
+
+        --violet-glow:   rgba(168, 85, 247, 0.20);
+        --indigo-glow:   rgba(192, 132, 252, 0.18);
+
+        --ok:            #4ade80;
+        --warn:          #fbbf24;
+        --err:           #fb7185;
+
+        --shadow-sm:     0 1px 2px rgba(20, 5, 40, 0.4);
+        --shadow-md:     0 8px 30px rgba(20, 5, 40, 0.50);
+        --shadow-lg:     0 20px 60px rgba(20, 5, 40, 0.60);
+
+        --grad-brand:    linear-gradient(135deg, #a855f7 0%, #d946ef 55%, #e879f9 100%);
+        --grad-brand-soft: linear-gradient(135deg, rgba(168,85,247,.18), rgba(217,70,239,.14) 55%, rgba(232,121,249,.14));
+        --ambient:       radial-gradient(ellipse at 50% -10%, rgba(168,85,247,.22), transparent 60%),
+                         radial-gradient(ellipse at 85% 20%, rgba(232,121,249,.16), transparent 55%),
+                         radial-gradient(ellipse at 10% 30%, rgba(192,132,252,.16), transparent 55%);
+      }
+
+      /* ============================================================
+         Tokens — Tema claro
+         ============================================================ */
+      [data-theme="light"] {
+        --bg:            #faf5ff;
+        --bg-2:          #f4ebff;
+        --surface:       #ffffff;
+        --surface-2:     #fbf6ff;
+        --surface-hi:    #f3e8ff;
+        --border:        rgba(126, 34, 206, 0.14);
+        --border-hi:     rgba(192, 38, 211, 0.30);
+        --ring:          rgba(168, 85, 247, 0.32);
+
+        --text:          #2a0f4a;
+        --text-soft:     #5b3a82;
+        --text-mute:     #7a5ea3;
+        --text-faint:    #a692c2;
+
+        --violet:        #9333ea;
+        --violet-2:      #7e22ce;
+        --indigo:        #a855f7;
+        --indigo-2:      #9333ea;
+        --fuchsia:       #c026d3;
+        --fuchsia-2:     #a21caf;
+        --fuchsia-soft:  rgba(192, 38, 211, 0.14);
+
+        --violet-glow:   rgba(147, 51, 234, 0.10);
+        --indigo-glow:   rgba(168, 85, 247, 0.10);
+
+        --ok:            #16a34a;
+        --warn:          #d97706;
+        --err:           #e11d48;
+
+        --shadow-sm:     0 1px 2px rgba(112, 26, 168, 0.06);
+        --shadow-md:     0 10px 30px rgba(112, 26, 168, 0.09);
+        --shadow-lg:     0 24px 60px rgba(112, 26, 168, 0.12);
+
+        --grad-brand:    linear-gradient(135deg, #9333ea 0%, #c026d3 55%, #d946ef 100%);
+        --grad-brand-soft: linear-gradient(135deg, rgba(147,51,234,.12), rgba(192,38,211,.10) 55%, rgba(217,70,239,.10));
+        --ambient:       radial-gradient(ellipse at 50% -10%, rgba(147,51,234,.14), transparent 60%),
+                         radial-gradient(ellipse at 85% 20%, rgba(192,38,211,.12), transparent 55%),
+                         radial-gradient(ellipse at 10% 30%, rgba(168,85,247,.12), transparent 55%);
+      }
+
+      /* ============================================================
+         Base
+         ============================================================ */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html { scroll-behavior: smooth; }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+        font-size: 15px;
+        line-height: 1.55;
+        min-height: 100vh;
+        overflow-x: hidden;
+        transition: background-color 0.4s ease, color 0.4s ease;
+      }
+
+      /* Resplandor ambiente */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: var(--ambient);
+        pointer-events: none;
+        z-index: 0;
+        transition: opacity 0.4s ease;
+      }
+
+      a { color: inherit; }
+      button { font-family: inherit; }
+
+      /* ============================================================
+         Layout principal
+         ============================================================ */
+      .shell {
+        position: relative;
+        z-index: 1;
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 28px;
+      }
+
+      /* ============================================================
+         Header
+         ============================================================ */
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: color-mix(in oklab, var(--bg) 78%, transparent);
+        backdrop-filter: saturate(150%) blur(18px);
+        -webkit-backdrop-filter: saturate(150%) blur(18px);
+        border-bottom: 1px solid var(--border);
+        transition: background-color 0.4s ease, border-color 0.4s ease;
+      }
+      .header-inner {
+        height: 68px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .brand-mark {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: var(--grad-brand);
+        position: relative;
+        display: grid;
+        place-items: center;
+        box-shadow: 0 8px 24px -8px var(--violet);
+      }
+      .brand-mark::after {
+        content: "";
+        position: absolute;
+        inset: 1px;
+        border-radius: 9px;
+        background: var(--grad-brand);
+      }
+      .brand-mark svg {
+        position: relative;
+        z-index: 1;
+        color: #fff;
+      }
+      .brand-name {
+        font-weight: 700;
+        font-size: 17px;
+        letter-spacing: -0.2px;
+        line-height: 1;
+      }
+      .brand-sub {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 1.4px;
+        text-transform: uppercase;
+        color: var(--text-mute);
+        margin-top: 4px;
+      }
+
+      .header-tools {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .pill {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        color: var(--text-soft);
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s ease;
+      }
+      .pill .dotlive {
+        width: 6px; height: 6px; border-radius: 50%;
+        background: var(--ok);
+        box-shadow: 0 0 0 0 var(--ok);
+        animation: pulseDot 2s infinite;
+      }
+      @keyframes pulseDot {
+        0%   { box-shadow: 0 0 0 0 color-mix(in oklab, var(--ok) 50%, transparent); }
+        70%  { box-shadow: 0 0 0 6px transparent; }
+        100% { box-shadow: 0 0 0 0 transparent; }
+      }
+
+      /* Toggle de tema */
+      .theme-toggle {
+        position: relative;
+        width: 64px;
+        height: 34px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        cursor: pointer;
+        padding: 0;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+      }
+      .theme-toggle:hover {
+        border-color: var(--border-hi);
+      }
+      .theme-toggle::before {
+        content: "";
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: var(--grad-brand);
+        box-shadow: 0 4px 12px -2px var(--violet);
+        transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+      }
+      [data-theme="light"] .theme-toggle::before {
+        transform: translateX(30px);
+      }
+      .theme-toggle svg {
+        position: absolute;
+        width: 14px; height: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        transition: opacity 0.3s ease, color 0.3s ease;
+        pointer-events: none;
+      }
+      .theme-toggle .ico-sun  { right: 9px; color: var(--text-mute); }
+      .theme-toggle .ico-moon { left: 9px;  color: #fff; }
+      [data-theme="light"] .theme-toggle .ico-sun  { color: #fff; }
+      [data-theme="light"] .theme-toggle .ico-moon { color: var(--text-mute); }
+
+      /* ============================================================
+         Hero
+         ============================================================ */
+      .hero {
+        padding: 64px 0 40px;
+        display: grid;
+        grid-template-columns: 1fr 420px;
+        gap: 56px;
+        align-items: center;
+      }
+      .eyebrow {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        letter-spacing: 2.4px;
+        text-transform: uppercase;
+        color: var(--violet);
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 22px;
+      }
+      .eyebrow::before {
+        content: "";
+        width: 24px; height: 1px;
+        background: currentColor;
+      }
+      h1 {
+        font-size: clamp(38px, 4.8vw, 64px);
+        line-height: 1.06;
+        font-weight: 700;
+        letter-spacing: -1.2px;
+        text-wrap: balance;
+        max-width: 580px;
+      }
+      h1 .accent {
+        background: var(--grad-brand);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        font-style: italic;
+        font-weight: 600;
+      }
+      .lead {
+        margin-top: 20px;
+        font-size: 16px;
+        color: var(--text-soft);
+        max-width: 480px;
+        line-height: 1.65;
+      }
+
+      .hero-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .stat {
+        padding: 16px 18px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        transition: all 0.25s ease;
+      }
+      .stat:hover {
+        border-color: var(--border-hi);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+      }
+      .stat-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 1.6px;
+        text-transform: uppercase;
+        color: var(--text-mute);
+        margin-bottom: 6px;
+      }
+      .stat-val {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .stat-val .mark-violet  { color: var(--violet); }
+      .stat-val .mark-fuchsia { color: var(--fuchsia); }
+
+      /* ============================================================
+         Workspace
+         ============================================================ */
+      .workspace {
+        padding-bottom: 64px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: border-color 0.25s ease, box-shadow 0.25s ease;
+      }
+      .panel:hover { border-color: var(--border-hi); box-shadow: var(--shadow-md); }
+
+      .panel-head {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        background: var(--surface-2);
+      }
+      .panel-head-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .panel-ico {
+        width: 36px; height: 36px;
+        border-radius: 10px;
+        background: var(--grad-brand-soft);
+        border: 1px solid var(--border);
+        display: grid;
+        place-items: center;
+        color: var(--violet);
+      }
+      .panel-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text);
+        letter-spacing: -0.1px;
+      }
+      .panel-meta {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 1.4px;
+        text-transform: uppercase;
+        color: var(--text-mute);
+        margin-top: 2px;
+      }
+
+      /* Toggle segmentado (Correo / Texto) */
+      .seg {
+        display: inline-flex;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 3px;
+        position: relative;
+      }
+      .seg button {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        letter-spacing: 1.4px;
+        text-transform: uppercase;
+        padding: 7px 12px;
+        border: none;
+        background: transparent;
+        color: var(--text-mute);
+        cursor: pointer;
+        border-radius: 7px;
+        transition: color 0.25s ease;
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .seg button:hover:not(.active) {
+        color: var(--text);
+      }
+      .seg button.active {
+        color: #fff;
+        background: var(--grad-brand);
+        box-shadow: 0 4px 14px -4px var(--violet);
+      }
+      [data-theme="light"] .seg button.active { color: #fff; }
+
+      .panel-body {
+        padding: 22px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      /* ============================================================
+         Caja de voz
+         ============================================================ */
+      .vbox {
+        background: var(--grad-brand-soft);
+        border: 1px solid var(--border-hi);
+        border-radius: 16px;
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        position: relative;
+        overflow: hidden;
+        transition: box-shadow 0.35s ease, border-color 0.35s ease;
+      }
+      .vbox.active {
+        border-color: var(--fuchsia);
+        box-shadow: 0 0 0 4px var(--fuchsia-soft);
+      }
+
+      .vbox-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .mic-orb {
+        width: 44px; height: 44px;
+        border-radius: 50%;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        display: grid;
+        place-items: center;
+        color: var(--violet);
+        flex-shrink: 0;
+        position: relative;
+        transition: all 0.3s ease;
+      }
+      .vbox.active .mic-orb {
+        background: var(--grad-brand);
+        color: #fff;
+        border-color: transparent;
+      }
+      .vbox.active .mic-orb::before {
+        content: "";
+        position: absolute;
+        inset: -6px;
+        border-radius: 50%;
+        border: 2px solid var(--fuchsia);
+        opacity: 0;
+        animation: ring 1.6s ease-out infinite;
+      }
+      .vbox.active .mic-orb::after {
+        content: "";
+        position: absolute;
+        inset: -12px;
+        border-radius: 50%;
+        border: 2px solid var(--violet);
+        opacity: 0;
+        animation: ring 1.6s ease-out 0.4s infinite;
+      }
+      @keyframes ring {
+        0%   { transform: scale(0.85); opacity: 0.8; }
+        100% { transform: scale(1.4);  opacity: 0; }
+      }
+
+      .vstat {
+        flex: 1;
+      }
+      .vstat-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 1.6px;
+        text-transform: uppercase;
+        color: var(--text-mute);
+        margin-bottom: 3px;
+      }
+      .vstat-val {
+        font-size: 14.5px;
+        font-weight: 600;
+        color: var(--text);
+        letter-spacing: -0.1px;
+      }
+      .vbox.active .vstat-val {
+        color: var(--violet);
+      }
+      .vbox.cmd-mode {
+        border-color: var(--indigo);
+        box-shadow: 0 0 0 4px var(--indigo-glow);
+      }
+      .vbox.cmd-mode .mic-orb {
+        background: var(--indigo-glow);
+        border-color: var(--indigo);
+        color: var(--indigo);
+        animation: cmdPulse 2s ease-in-out infinite;
+      }
+      @keyframes cmdPulse {
+        0%, 100% { box-shadow: 0 0 0 0 var(--indigo-glow); }
+        50%       { box-shadow: 0 0 0 10px transparent; }
+      }
+      .btn-ghost.cmd-on {
+        color: var(--indigo);
+        border-color: var(--indigo);
+        background: var(--indigo-glow);
+      }
+
+      .vbtns {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .kbd-hint {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: var(--text-mute);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      kbd {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        padding: 2px 7px;
+        border-radius: 5px;
+        border: 1px solid var(--border-hi);
+        background: var(--surface-hi);
+        color: var(--text-soft);
+        box-shadow: 0 1px 0 var(--border);
+      }
+
+      /* ============================================================
+         Botones
+         ============================================================ */
+      .btn {
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        border: 1px solid transparent;
+        border-radius: 10px;
+        padding: 10px 16px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        letter-spacing: -0.1px;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+      }
+      .btn:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 3px var(--ring);
+      }
+      .btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+      .btn svg { width: 16px; height: 16px; }
+
+      .btn-primary {
+        background: var(--grad-brand);
+        color: #fff;
+        box-shadow: 0 8px 24px -8px var(--violet);
+      }
+      .btn-primary:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 30px -8px var(--violet);
+      }
+      .btn-primary.rec {
+        background: linear-gradient(135deg, var(--fuchsia), var(--violet));
+        animation: recPulse 1.6s ease-in-out infinite;
+      }
+      @keyframes recPulse {
+        0%, 100% { box-shadow: 0 8px 24px -8px var(--fuchsia); }
+        50%      { box-shadow: 0 12px 32px -6px var(--fuchsia); }
+      }
+
+      .btn-secondary {
+        background: var(--surface);
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+      .btn-secondary:hover:not(:disabled) {
+        border-color: var(--violet);
+        color: var(--violet);
+        background: var(--surface-2);
+      }
+
+      .btn-ghost {
+        background: transparent;
+        color: var(--text-soft);
+        border: 1px solid var(--border);
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+      .btn-ghost:hover:not(:disabled) {
+        color: var(--text);
+        border-color: var(--border-hi);
+        background: var(--surface-2);
+      }
+
+      /* ============================================================
+         Inputs
+         ============================================================ */
+      .field-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 1.6px;
+        text-transform: uppercase;
+        color: var(--text-mute);
+        margin-bottom: 8px;
+        display: block;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 280px;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px 18px;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 15px;
+        font-weight: 400;
+        line-height: 1.65;
+        resize: vertical;
+        outline: none;
+        transition: all 0.2s ease;
+      }
+      textarea::placeholder {
+        color: var(--text-faint);
+      }
+      textarea:focus {
+        border-color: var(--violet);
+        background: var(--surface);
+        box-shadow: 0 0 0 4px var(--ring);
+      }
+
+      /* ============================================================
+         Salida IA
+         ============================================================ */
+      .out-wrap {
+        position: relative;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+      .out {
+        flex: 1;
+        min-height: 280px;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 18px 20px;
+        font-family: inherit;
+        font-size: 15px;
+        font-weight: 400;
+        line-height: 1.7;
+        color: var(--text);
+        white-space: pre-wrap;
+        word-break: break-word;
+        overflow-y: auto;
+        transition: opacity 0.3s ease, border-color 0.3s ease;
+      }
+      .out.has-content {
+        border-color: var(--border-hi);
+        background: var(--surface);
+      }
+      .out.loading {
+        opacity: 0.4;
+      }
+      .out:empty::before {
+        content: "El correo mejorado aparecerá aquí…";
+        color: var(--text-faint);
+        font-style: italic;
+      }
+      .out.modo-texto:empty::before {
+        content: "El texto mejorado aparecerá aquí…";
+      }
+
+      /* ============================================================
+         Barra de progreso
+         ============================================================ */
+      .prog-track {
+        height: 3px;
+        background: var(--surface-hi);
+        border-radius: 99px;
+        overflow: hidden;
+        position: relative;
+      }
+      .prog-fill {
+        height: 100%;
+        background: var(--grad-brand);
+        border-radius: 99px;
+        display: none;
+        width: 30%;
+      }
+      .prog-fill.on {
+        display: block;
+        animation: sweep 1.6s ease-in-out infinite;
+      }
+      @keyframes sweep {
+        0%   { transform: translateX(-100%); }
+        100% { transform: translateX(380%); }
+      }
+
+      /* ============================================================
+         Estados / mensajes
+         ============================================================ */
+      .st {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        letter-spacing: 0.4px;
+        color: var(--text-mute);
+        min-height: 18px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .st::before {
+        content: "";
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+        opacity: 0.5;
+      }
+      .st.ok  { color: var(--ok); }
+      .st.err { color: var(--err); }
+      .st.empty::before { display: none; }
+
+      .row-between {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      /* Scrollbar */
+      ::-webkit-scrollbar { width: 8px; height: 8px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border-hi);
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover { background: var(--violet); }
+
+      /* ============================================================
+         Footer
+         ============================================================ */
+      footer {
+        border-top: 1px solid var(--border);
+        margin-top: 8px;
+        padding: 24px 0;
+      }
+      .footer-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: var(--text-mute);
+        letter-spacing: 0.4px;
+      }
+      .footer-inner .accent { color: var(--violet); }
+
+      /* ============================================================
+         Animaciones de entrada
+         ============================================================ */
+      @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(14px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      .a-1 { animation: fadeUp 0.7s 0.05s cubic-bezier(.4,0,.2,1) both; }
+      .a-2 { animation: fadeUp 0.7s 0.15s cubic-bezier(.4,0,.2,1) both; }
+      .a-3 { animation: fadeUp 0.7s 0.30s cubic-bezier(.4,0,.2,1) both; }
+      .a-4 { animation: fadeUp 0.7s 0.45s cubic-bezier(.4,0,.2,1) both; }
+
+      /* ============================================================
+         Responsive
+         ============================================================ */
+
+      /* ── Laptop estrecho / tablet landscape ── */
+      @media (max-width: 1100px) {
+        .hero { grid-template-columns: 1fr 360px; gap: 36px; }
+      }
+
+      /* ── Tablet portrait ── */
+      @media (max-width: 900px) {
+        .shell { padding: 0 20px; }
+        .hero {
+          grid-template-columns: 1fr;
+          gap: 36px;
+          padding: 44px 0 28px;
+        }
+        h1 {
+          font-size: clamp(36px, 7.5vw, 52px);
+          max-width: 100%;
+        }
+        .lead { max-width: 100%; }
+        .hero-stats {
+          grid-template-columns: repeat(4, 1fr);
+          gap: 8px;
+        }
+        .stat { padding: 12px 14px; }
+        .workspace { grid-template-columns: 1fr; gap: 16px; }
+      }
+
+      /* ── Móvil grande ── */
+      @media (max-width: 640px) {
+        .shell { padding: 0 16px; }
+        .header-inner { height: 58px; }
+        .brand-name { font-size: 15px; }
+        .brand-sub { display: none; }
+        .header-tools .pill { display: none; }
+        .hero { padding: 32px 0 20px; gap: 28px; }
+        h1 {
+          font-size: clamp(32px, 9vw, 44px);
+          letter-spacing: -0.7px;
+        }
+        .lead { font-size: 15px; margin-top: 14px; }
+        .hero-stats { grid-template-columns: 1fr 1fr; gap: 8px; }
+        .stat { padding: 12px 14px; }
+        .seg button span.lbl-long { display: none; }
+        .vbtns { gap: 8px; }
+        .vbtns .btn { flex: 1; justify-content: center; }
+        .panel-body { padding: 16px; gap: 14px; }
+        textarea { min-height: 220px; }
+        .out   { min-height: 220px; }
+      }
+
+      /* ── Móvil pequeño ── */
+      @media (max-width: 400px) {
+        .shell { padding: 0 12px; }
+        h1 { font-size: 30px; letter-spacing: -0.5px; }
+        .hero-stats { grid-template-columns: 1fr 1fr; }
+        .vbox { padding: 14px; }
+        .kbd-hint { display: none; }
+      }
+
+      /* Reducir movimiento */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ============================== HEADER ============================== -->
+    <header>
+      <div class="shell header-inner">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="22"/>
+            </svg>
+          </div>
+          <div>
+            <div class="brand-name">VeuIA</div>
+            <div class="brand-sub">Dictado inteligente</div>
+          </div>
+        </div>
+
+        <div class="header-tools">
+          <span class="pill" id="statusPill">
+            <span class="dotlive"></span>
+            <span>IA local conectada</span>
+          </span>
+          <button
+            class="theme-toggle"
+            id="themeToggle"
+            type="button"
+            aria-label="Cambiar tema"
+            title="Cambiar tema (claro/oscuro)"
+          >
+            <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+            <svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4"/>
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============================== HERO ============================== -->
+    <section class="shell hero">
+      <div class="a-1">
+        <p class="eyebrow">Asistente IA · Procesamiento local</p>
+        <h1>Tu voz.<br /><span class="accent">Correos perfectos.</span></h1>
+        <p class="lead">
+          Dicta o escribe un borrador y VeuIA lo convierte en un correo
+          profesional, claro y listo para enviar. Sin nube, sin suscripción,
+          100&nbsp;% offline.
+        </p>
+      </div>
+
+      <div class="hero-stats a-2">
+        <div class="stat">
+          <div class="stat-label">Modelo IA</div>
+          <div class="stat-val"><span class="mark-violet">Llama</span> 3.2 · 3B</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Motor</div>
+          <div class="stat-val">Ollama · Local</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Idioma</div>
+          <div class="stat-val">Español nativo</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Privacidad</div>
+          <div class="stat-val"><span class="mark-fuchsia">100&nbsp;%</span> offline</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== WORKSPACE ============================== -->
+    <main class="shell workspace">
+      <!-- Panel: Entrada -->
+      <section class="panel a-3" aria-labelledby="title-entrada">
+        <div class="panel-head">
+          <div class="panel-head-left">
+            <div class="panel-ico" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="22"/>
+              </svg>
+            </div>
+            <div>
+              <div class="panel-title" id="title-entrada">Entrada</div>
+              <div class="panel-meta">Dicta o escribe</div>
+            </div>
+          </div>
+
+          <div class="seg" role="group" aria-label="Modo de salida">
+            <button class="active" id="btnModoCorreo" type="button">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <span class="lbl-long">Correo</span>
+            </button>
+            <button id="btnModoTexto" type="button">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="14" y2="18"/></svg>
+              <span class="lbl-long">Texto</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="panel-body">
+          <div class="vbox" id="vbox">
+            <div class="vbox-row">
+              <div class="mic-orb">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z"/>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                  <line x1="12" y1="19" x2="12" y2="22"/>
+                </svg>
+              </div>
+              <div class="vstat">
+                <div class="vstat-label">Micrófono</div>
+                <div class="vstat-val" id="indvoz">Preparado</div>
+              </div>
+            </div>
+
+            <div class="vbtns">
+              <button class="btn btn-primary" id="btnvoz" type="button">
+                <svg id="vico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z"/>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                  <line x1="12" y1="19" x2="12" y2="22"/>
+                </svg>
+                <span id="vlbl">Iniciar dictado</span>
+              </button>
+              <button class="btn btn-secondary" id="btnenviar" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+                <span>Procesar con IA</span>
+              </button>
+              <button class="btn btn-ghost" id="btnComando" type="button" title="Escuchar comandos de voz (Alt+V)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M6.3 6.3a8 8 0 0 0 0 11.4M17.7 17.7a8 8 0 0 0 0-11.4"/>
+                  <path d="M3.5 3.5a12 12 0 0 0 0 17M20.5 20.5a12 12 0 0 0 0-17"/>
+                </svg>
+                <span id="cmdlbl">Comandos</span>
+              </button>
+            </div>
+
+            <div class="kbd-hint">
+              <kbd>Ctrl</kbd>+<kbd>Enter</kbd> enviar &nbsp;·&nbsp;
+              <kbd>Alt</kbd>+<kbd>V</kbd> comandos de voz
+            </div>
+          </div>
+
+          <div>
+            <label class="field-label" for="txt">Texto original</label>
+            <textarea
+              id="txt"
+              placeholder="Dicta por voz o escribe aquí… p. ej.: «redacta un correo para pedir presupuesto»"
+            ></textarea>
+          </div>
+
+          <div class="row-between">
+            <div class="st empty" id="stizq" aria-live="polite"></div>
+            <button class="btn btn-ghost" id="btnlimpiar" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+              <span>Limpiar</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Panel: Resultado -->
+      <section class="panel a-4" aria-labelledby="title-salida">
+        <div class="panel-head">
+          <div class="panel-head-left">
+            <div class="panel-ico" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2l2.39 7.36H22l-6.18 4.5L18.21 22 12 17.27 5.79 22l2.39-8.14L2 9.36h7.61z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="panel-title" id="title-salida">Resultado IA</div>
+              <div class="panel-meta" id="flblOut">Correo generado</div>
+            </div>
+          </div>
+
+          <button class="btn btn-ghost" id="btncopiar" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copiar</span>
+          </button>
+        </div>
+
+        <div class="panel-body">
+          <div class="prog-track" aria-hidden="true">
+            <div class="prog-fill" id="prog"></div>
+          </div>
+
+          <div class="out-wrap">
+            <div
+              id="out"
+              class="out"
+              role="status"
+              aria-live="polite"
+              aria-label="Resultado generado por la IA"
+            ></div>
+          </div>
+
+          <div class="row-between">
+            <div class="st empty" id="stder" aria-live="polite"></div>
+            <div class="kbd-hint">
+              <span id="tinfo"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ============================== FOOTER ============================== -->
+    <footer>
+      <div class="shell footer-inner">
+        <span>VeuIA · <span class="accent">Dictado inteligente</span> · Portafolio 2025</span>
+        <span>PHP · Ollama · Web Speech API · 100&nbsp;% offline</span>
+      </div>
+    </footer>
+
+    <!-- ============================== SCRIPT ============================== -->
+    <script>
+      /* ================================================================
+         TEMA — toggle claro/oscuro con persistencia
+         ================================================================ */
+      (function initTheme() {
+        const KEY = "rosalee.theme";
+        const root = document.documentElement;
+        const saved = localStorage.getItem(KEY);
+        const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+        const initial = saved || (prefersLight ? "light" : "dark");
+        root.setAttribute("data-theme", initial);
+
+        const btn = document.getElementById("themeToggle");
+        btn.setAttribute("aria-pressed", initial === "light" ? "true" : "false");
+
+        btn.addEventListener("click", () => {
+          const next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
+          root.setAttribute("data-theme", next);
+          localStorage.setItem(KEY, next);
+          btn.setAttribute("aria-pressed", next === "light" ? "true" : "false");
+        });
+      })();
+
+      /* ================================================================
+         REFERENCIAS
+         ================================================================ */
+      const txt        = document.getElementById("txt");
+      const out        = document.getElementById("out");
+      const btnvoz     = document.getElementById("btnvoz");
+      const btnenv     = document.getElementById("btnenviar");
+      const btncop     = document.getElementById("btncopiar");
+      const btnlmp     = document.getElementById("btnlimpiar");
+      const stizq      = document.getElementById("stizq");
+      const stder      = document.getElementById("stder");
+      const vbox       = document.getElementById("vbox");
+      const indvoz     = document.getElementById("indvoz");
+      const prog       = document.getElementById("prog");
+      const vlbl       = document.getElementById("vlbl");
+      const tinfo      = document.getElementById("tinfo");
+      const flblOut    = document.getElementById("flblOut");
+      const statusPill = document.getElementById("statusPill");
+      const btnModoCorreo = document.getElementById("btnModoCorreo");
+      const btnModoTexto  = document.getElementById("btnModoTexto");
+      const btnComando    = document.getElementById("btnComando");
+      const cmdlbl        = document.getElementById("cmdlbl");
+
+      /* SVGs intercambiables para el botón de voz */
+      const SVG_MIC  = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>`;
+      const SVG_STOP = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>`;
+      function setVoiceIcon(stopMode) {
+        const old = document.getElementById("vico");
+        const tmp = document.createElement("span");
+        tmp.innerHTML = stopMode ? SVG_STOP : SVG_MIC;
+        const node = tmp.firstChild;
+        node.id = "vico";
+        old.replaceWith(node);
+      }
+
+      /* ================================================================
+         ESTADO
+         ================================================================ */
+      let grabando = false, rec = null, tf = "";
+      let enviando = false, enviarFin = false, sesion = false;
+      let modoActual = "correo";
+      let cmdSesion = false, cmdRec = null;
+
+      /* Comandos de voz disponibles */
+      const CMDS_INICIO = ["iniciar dictado", "empezar dictado"];
+      const CMD_FIN     = "terminar dictado";
+      const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+
+      /* ================================================================
+         HELPERS
+         ================================================================ */
+      const si = (m, t = "") => {
+        stizq.textContent = m;
+        stizq.className   = "st" + (t ? " " + t : "") + (m ? "" : " empty");
+      };
+      const sd = (m, t = "") => {
+        stder.textContent = m;
+        stder.className   = "st" + (t ? " " + t : "") + (m ? "" : " empty");
+      };
+      const refreshOut = () => {
+        if (out.textContent.trim().length > 0) out.classList.add("has-content");
+        else out.classList.remove("has-content");
+      };
+
+      /* ================================================================
+         MODO Correo / Texto
+         ================================================================ */
+      function aplicarModo(modo) {
+        modoActual = modo;
+        if (modo === "correo") {
+          btnModoCorreo.classList.add("active");
+          btnModoTexto.classList.remove("active");
+          out.classList.remove("modo-texto");
+          flblOut.textContent = "Correo generado";
+          txt.placeholder     = "Dicta por voz o escribe aquí… p. ej.: «redacta un correo para pedir presupuesto»";
+        } else {
+          btnModoTexto.classList.add("active");
+          btnModoCorreo.classList.remove("active");
+          out.classList.add("modo-texto");
+          flblOut.textContent = "Texto mejorado";
+          txt.placeholder     = "Dicta o escribe el texto que quieres mejorar profesionalmente…";
+        }
+      }
+      btnModoCorreo.onclick = () => aplicarModo("correo");
+      btnModoTexto.onclick  = () => aplicarModo("texto");
+
+      /* ================================================================
+         Contexto seguro (file:// no funciona)
+         ================================================================ */
+      if (location.protocol === "file:") {
+        si("Abre desde Apache (http://localhost/…) para usar VeuIA.", "err");
+        btnvoz.disabled = true;
+        btnenv.disabled = true;
+        statusPill.querySelector(".dotlive").style.background = "var(--warn)";
+        statusPill.querySelector("span:last-child").textContent = "Ejecuta en localhost";
+      }
+
+      /* ================================================================
+         Limpiar
+         ================================================================ */
+      btnlmp.onclick = () => {
+        txt.value = "";
+        tf = "";
+        si("Texto borrado.");
+        txt.focus();
+      };
+
+      /* ================================================================
+         Enviar a back.php
+         ================================================================ */
+      function enviar() {
+        if (enviando) { si("Espera a que termine el procesamiento actual."); return; }
+        const v = txt.value.trim();
+        if (!v) { out.textContent = ""; refreshOut(); si("No hay texto para enviar."); return; }
+
+        enviando = true;
+        btnenv.disabled = true;
+        out.classList.add("loading");
+        out.textContent = "";
+        refreshOut();
+        prog.classList.add("on");
+        si("Enviando a la IA…");
+        sd("Procesando…");
+        tinfo.textContent = "";
+        const t0 = Date.now();
+
+        fetch("back.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
+          body: "mensaje=" + encodeURIComponent(v) + "&modo=" + encodeURIComponent(modoActual),
+        })
+          .then((r) => r.text().then((raw) => {
+            let d;
+            try { d = JSON.parse(raw); } catch {
+              throw new Error("Respuesta inválida: " + raw.slice(0, 100));
+            }
+            return { ok: r.ok, body: d };
+          }))
+          .then((res) => {
+            if (!res.ok || !res.body.ok) {
+              const det = res.body.detail ? " — " + res.body.detail : "";
+              throw new Error((res.body.error || "Error") + det);
+            }
+            out.textContent = res.body.response;
+            refreshOut();
+            const s = ((Date.now() - t0) / 1000).toFixed(1);
+            si("Completado.", "ok");
+            sd("Listo para usar.", "ok");
+            tinfo.textContent = s + "s · " + (res.body.modelo || "mistral");
+          })
+          .catch((e) => {
+            out.textContent = "";
+            refreshOut();
+            si("Error al enviar.", "err");
+            sd(e.message, "err");
+          })
+          .finally(() => {
+            enviando = false;
+            btnenv.disabled = false;
+            out.classList.remove("loading");
+            prog.classList.remove("on");
+          });
+      }
+
+      btnenv.onclick = enviar;
+      txt.addEventListener("keydown", (e) => {
+        if (e.ctrlKey && e.key === "Enter") enviar();
+      });
+
+      /* ================================================================
+         Copiar resultado
+         ================================================================ */
+      btncop.onclick = () => {
+        const t = out.textContent.trim();
+        if (!t) { sd("No hay contenido para copiar."); return; }
+        navigator.clipboard
+          .writeText(t)
+          .then(() => sd("Copiado al portapapeles.", "ok"))
+          .catch(() => sd("No se pudo copiar.", "err"));
+      };
+
+      /* ================================================================
+         COMANDOS DE VOZ
+         Di «iniciar dictado» o «empezar dictado» para arrancar.
+         Di «terminar dictado» para detener y enviar a la IA.
+         ================================================================ */
+      function iniciarModoComando() {
+        if (!SR || !seguro || sesion || cmdSesion) return;
+        if (cmdRec) { try { cmdRec.stop(); } catch (_) {} }
+
+        cmdRec = new SR();
+        cmdRec.lang = "es-ES";
+        cmdRec.continuous = false;
+        cmdRec.interimResults = false;
+        cmdRec.maxAlternatives = 3;
+
+        cmdSesion = true;
+        vbox.classList.add("cmd-mode");
+        btnComando.classList.add("cmd-on");
+        cmdlbl.textContent = "Escuchando…";
+        indvoz.textContent = "Esperando comando";
+        si("Di «iniciar dictado» o «empezar dictado»");
+
+        cmdRec.onresult = (e) => {
+          const frases = [];
+          for (let i = 0; i < e.results.length; i++)
+            for (let j = 0; j < e.results[i].length; j++)
+              frases.push(norm(e.results[i][j].transcript));
+
+          if (frases.some(f => CMDS_INICIO.some(cmd => f.includes(norm(cmd))))) {
+            detenerModoComando();
+            setTimeout(() => iniciarDictado(), 500);
+          }
+        };
+
+        cmdRec.onend = () => {
+          if (!cmdSesion || sesion) return;
+          setTimeout(() => {
+            if (cmdSesion && !sesion) try { cmdRec.start(); } catch (_) {}
+          }, 300);
+        };
+
+        cmdRec.onerror = (e) => {
+          if (e.error === "no-speech") return;
+          detenerModoComando();
+          si("Error en modo comando: " + e.error, "err");
+        };
+
+        try { cmdRec.start(); } catch (_) {
+          cmdSesion = false;
+          si("No se pudo activar modo comando.", "err");
+        }
+      }
+
+      function detenerModoComando() {
+        cmdSesion = false;
+        if (cmdRec) { try { cmdRec.stop(); } catch (_) {} cmdRec = null; }
+        vbox.classList.remove("cmd-mode");
+        btnComando.classList.remove("cmd-on");
+        cmdlbl.textContent = "Comandos";
+        indvoz.textContent = "Preparado";
+        si("");
+      }
+
+      function iniciarDictado() {
+        if (sesion) return;
+        tf = txt.value.trim(); enviarFin = false; sesion = true;
+        btnvoz.classList.add("rec");
+        setVoiceIcon(true);
+        vlbl.textContent = "Detener dictado";
+        vbox.classList.add("active");
+        indvoz.textContent = "Iniciando…";
+        si("Iniciando dictado…");
+        try { startRec(); } catch {
+          stopSesion("No se pudo iniciar. Revisa permisos.", "err");
+        }
+      }
+
+      btnComando.onclick = () => {
+        if (sesion) { si("Detén el dictado antes de activar comandos."); return; }
+        cmdSesion ? detenerModoComando() : iniciarModoComando();
+      };
+
+      /* ================================================================
+         Reconocimiento de voz
+         ================================================================ */
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const seguro =
+        window.isSecureContext ||
+        ["localhost", "127.0.0.1"].includes(location.hostname);
+
+      function startRec(retry) {
+        if (!rec) return;
+        try { rec.start(); } catch (e) {
+          if (e.name === "InvalidStateError" && !retry) {
+            setTimeout(() => startRec(true), 400);
+          } else if (e.name !== "InvalidStateError") {
+            throw e;
+          }
+        }
+      }
+
+      function stopSesion(m, t = "") {
+        sesion = false; grabando = false; enviarFin = false;
+        btnvoz.classList.remove("rec");
+        setVoiceIcon(false);
+        vlbl.textContent = "Iniciar dictado";
+        vbox.classList.remove("active");
+        indvoz.textContent = "Preparado";
+        si(m, t);
+      }
+
+      if (!seguro) {
+        btnvoz.disabled = true;
+        vlbl.textContent = "HTTPS requerido";
+        si("El dictado necesita localhost o HTTPS.", "err");
+      } else if (SR) {
+        rec = new SR();
+        rec.lang = "es-ES";
+        rec.continuous = true;
+        rec.interimResults = true;
+        rec.maxAlternatives = 1;
+
+        rec.onstart = () => {
+          grabando = true;
+          vbox.classList.add("active");
+          indvoz.textContent = "Escuchando…";
+          si("Micrófono activo. Habla ahora…");
+        };
+
+        rec.onresult = (e) => {
+          let tmp = "";
+          for (let i = e.resultIndex; i < e.results.length; i++) {
+            const seg = e.results[i][0].transcript.trim();
+            if (e.results[i].isFinal) {
+              /* Detectar comando de fin */
+              if (norm(seg).includes(norm(CMD_FIN))) {
+                // Preserve any dictated content that arrived in the same segment as the command
+                const ante = seg.replace(new RegExp(CMD_FIN, "gi"), "").trim();
+                if (ante) tf = (tf + " " + ante).trim();
+                tf = tf.replace(new RegExp(CMD_FIN, "gi"), "").trim();
+                txt.value = tf;
+                si("Comando detectado — terminando dictado…");
+                enviarFin = true; sesion = false;
+                rec.stop();
+                return;
+              }
+              if (seg) tf = (tf + " " + seg).trim();
+            } else tmp += (tmp ? " " : "") + seg;
+          }
+          txt.value = [tf, tmp].filter(Boolean).join(" ");
+          si("Dictando…");
+        };
+
+        rec.onnomatch = () => si("No reconocido. Habla más cerca del micrófono.");
+
+        rec.onerror = (e) => {
+          const msgs = {
+            "not-allowed":         "Sin permiso de micrófono.",
+            "service-not-allowed": "Servicio bloqueado.",
+            "audio-capture":       "No se detecta micrófono.",
+          };
+          if (e.error === "no-speech") { indvoz.textContent = "Esperando voz…"; return; }
+          stopSesion(msgs[e.error] || "Error: " + e.error, "err");
+        };
+
+        rec.onend = () => {
+          if (enviarFin) {
+            enviarFin = false; sesion = false; grabando = false;
+            btnvoz.classList.remove("rec");
+            setVoiceIcon(false);
+            vlbl.textContent = "Iniciar dictado";
+            vbox.classList.remove("active");
+            indvoz.textContent = "Preparado";
+            si("Procesando dictado…");
+            enviar(); return;
+          }
+          if (sesion) {
+            indvoz.textContent = "Esperando voz…";
+            setTimeout(() => { if (sesion && !grabando) startRec(); }, 250);
+            return;
+          }
+          stopSesion("Dictado detenido.");
+        };
+
+        btnvoz.onclick = () => {
+          if (cmdSesion) { detenerModoComando(); return; }
+          if (!sesion) {
+            iniciarDictado();
+          } else {
+            enviarFin = true; sesion = false; rec.stop();
+            btnvoz.classList.remove("rec");
+            setVoiceIcon(false);
+            vlbl.textContent = "Iniciar dictado";
+            indvoz.textContent = "Cerrando micrófono…";
+            si("Cerrando dictado…");
+          }
+        };
+      } else {
+        btnvoz.disabled = true;
+        vlbl.textContent = "No compatible";
+        si("Usa Chrome o Edge para el dictado por voz.", "err");
+      }
+      /* Alt+V activa / desactiva el modo comando de voz */
+      document.addEventListener("keydown", (e) => {
+        if (e.altKey && e.key.toLowerCase() === "v") {
+          e.preventDefault();
+          btnComando.click();
+        }
+      });
+
+      /* ================================================================
+         ESTADO DE OLLAMA — comprueba la conexión al cargar y cada 30 s
+         ================================================================ */
+      function checkOllama() {
+        fetch("ping.php")
+          .then(r => r.json())
+          .then(d => {
+            const dot   = statusPill.querySelector(".dotlive");
+            const label = statusPill.querySelector("span:last-child");
+            if (d.ok) {
+              dot.style.background  = "";
+              dot.style.animation   = "";
+              label.textContent     = "IA local conectada";
+              statusPill.title      = "Ollama en " + d.host + " · Modelos: " + (d.modelos.join(", ") || "–");
+            } else {
+              dot.style.background  = "var(--err)";
+              dot.style.animation   = "none";
+              label.textContent     = "Ollama no disponible";
+              statusPill.title      = d.error;
+              sd(d.error, "err");
+            }
+          })
+          .catch(() => {
+            const dot = statusPill.querySelector(".dotlive");
+            dot.style.background = "var(--warn)";
+            dot.style.animation  = "none";
+            statusPill.querySelector("span:last-child").textContent = "Sin respuesta del servidor";
+          });
+      }
+
+      if (location.protocol !== "file:") {
+        checkOllama();
+        setInterval(checkOllama, 30000);
+      }
+    </script>
+  </body>
+</html>
