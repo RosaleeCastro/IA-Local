@@ -1,0 +1,31 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ============================================================
+# requirements.txt
+# 006 - Entrenamiento IA: Leyes Migratorias en Espana
+# ============================================================
+
+# --- Scripts 001, 002, 006 (Ollama local) ---
+requests>=2.31.0
+
+# --- Scripts 004, 005, 007 (Fine-tuning LoRA con HuggingFace) ---
+# Instalar solo cuando vayas a entrenar el modelo
+torch>=2.1.0
+transformers>=4.40.0
+datasets>=2.18.0
+peft>=0.10.0
+trl>=0.8.6
+accelerate>=0.28.0

@@ -45,9 +45,10 @@ if ($mensaje === "") {
 }
 
 // ─── Configuracion ────────────────────────────────────────────────────────────
-$ollamaUrl          = getenv("OLLAMA_URL")              ?: "http://192.168.1.43:11434/api/generate";
-// MEJORA: llama3.2:3b o mistral:7b producen correos mucho mejores que deepseek-r1:1.5b
-$modelo = getenv("OLLAMA_MODEL") ?: "llama3.2:3b";
+$ollamaUrl          = getenv("OLLAMA_URL")              ?: "http://localhost:11434/api/generate";
+// Modelo local recomendado para corregir y redactar textos/correos en espanol.
+// Si quieres cambiarlo, define OLLAMA_MODEL o edita este valor.
+$modelo = getenv("OLLAMA_MODEL") ?: "llama3:latest";
 $maxIntentos        = 6;
 $pausaMicrosegundos = 2_000_000;
 $timeoutGeneracion  = (int)(getenv("OLLAMA_TIMEOUT")         ?: 300);
@@ -383,11 +384,11 @@ if ($detalleConexion !== null) {
     http_response_code(502);
 
     $pasos = match(true) {
-        str_contains($detalleConexion, "timed out")           => "Ollama tardó demasiado. Ejecuta en la VM: ollama run {$modelo} \"hola\" para precalentar el modelo.",
-        str_contains($detalleConexion, "Connection refused")  => "Ollama no está corriendo. En la VM ejecuta: ollama serve",
-        str_contains($detalleConexion, "Could not resolve")   => "No se resuelve la IP de la VM. Verifica OLLAMA_URL en back.php.",
-        str_contains($detalleConexion, "Network unreachable") => "La VM no es accesible. Comprueba que está encendida y en la misma red.",
-        default                                               => "Comprueba: 1) VM encendida  2) ollama serve corriendo  3) IP correcta en back.php",
+        str_contains($detalleConexion, "timed out")           => "Ollama local tardó demasiado. Ejecuta: ollama run {$modelo} \"hola\" para precalentar el modelo.",
+        str_contains($detalleConexion, "Connection refused")  => "Ollama local no está corriendo. Abre Ollama o ejecuta: ollama serve",
+        str_contains($detalleConexion, "Could not resolve")   => "No se resuelve el host local. Verifica OLLAMA_URL en back.php.",
+        str_contains($detalleConexion, "Network unreachable") => "Ollama local no es accesible. Comprueba que el servicio está iniciado.",
+        default                                               => "Comprueba: 1) Ollama abierto  2) modelo instalado con ollama list  3) OLLAMA_URL en back.php",
     };
 
     echo json_encode([
@@ -407,7 +408,7 @@ if ($errorStream !== null) {
         "detail" => $errorStream,
         "hint"   => strpos($errorStream, "model") !== false
             ? "Verifica que el modelo existe: ollama list"
-            : "Reinicia Ollama en la VM: ollama serve",
+            : "Reinicia Ollama local o ejecuta: ollama serve",
     ], JSON_UNESCAPED_UNICODE);
     exit;
 }
@@ -427,7 +428,7 @@ if ($textoAcumulado === "") {
     echo json_encode([
         "ok"     => false,
         "error"  => "Ollama no devolvió contenido.",
-        "hint"   => "El modelo puede estar descargado de memoria. Ejecuta en la VM: ollama run {$modelo} \"hola\"",
+        "hint"   => "El modelo puede estar descargado de memoria. Ejecuta: ollama run {$modelo} \"hola\"",
     ], JSON_UNESCAPED_UNICODE);
     exit;
 }

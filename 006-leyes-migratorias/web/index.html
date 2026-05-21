@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Consulta local de leyes migratorias</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <section class="workspace" aria-label="Consulta de leyes migratorias">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Ejercicio 006</p>
+          <h1>Leyes migratorias</h1>
+        </div>
+        <div class="status">
+          <span class="status-dot"></span>
+          <span>Local</span>
+        </div>
+      </header>
+
+      <div class="content-grid">
+        <aside class="side-panel" aria-label="Datos del sistema">
+          <div class="metric">
+            <span class="metric-label">Motor</span>
+            <strong id="modelName">Ollama</strong>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Dataset</span>
+            <strong id="datasetSize">JSONL</strong>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Ultima fuente</span>
+            <strong id="lastSource">Sin consulta</strong>
+          </div>
+
+          <div class="quick-area">
+            <p class="panel-title">Preguntas rapidas</p>
+            <button class="quick-btn" type="button">¿Qué es el NIE?</button>
+            <button class="quick-btn" type="button">¿Qué es el arraigo social?</button>
+            <button class="quick-btn" type="button">¿Qué diferencia hay entre estancia y residencia?</button>
+            <button class="quick-btn" type="button">¿Puede trabajar una persona con autorización de estudios?</button>
+          </div>
+        </aside>
+
+        <section class="chat-panel" aria-label="Chat">
+          <div id="chatLog" class="chat-log" aria-live="polite">
+            <article class="message assistant">
+              <div class="bubble">
+                Pregunta sobre residencia, NIE, arraigo, reagrupación familiar o estancia. Si encuentro una coincidencia clara, respondo desde el JSONL; si no, uso Ollama con contexto.
+              </div>
+            </article>
+          </div>
+
+          <form id="askForm" class="composer">
+            <label class="sr-only" for="questionInput">Pregunta</label>
+            <textarea id="questionInput" rows="2" placeholder="Escribe tu pregunta..." required></textarea>
+            <button id="sendButton" type="submit" aria-label="Enviar pregunta">
+              <span>Enviar</span>
+            </button>
+          </form>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -2,9 +2,9 @@
 header("Content-Type: application/json; charset=UTF-8");
 ini_set("display_errors", "0");
 
-$urlBase = getenv("OLLAMA_URL") ?: "http://192.168.1.43:11434/api/generate";
+$urlBase = getenv("OLLAMA_URL") ?: "http://localhost:11434/api/generate";
 $scheme  = parse_url($urlBase, PHP_URL_SCHEME) ?: "http";
-$host    = parse_url($urlBase, PHP_URL_HOST)   ?: "192.168.1.43";
+$host    = parse_url($urlBase, PHP_URL_HOST)   ?: "localhost";
 $port    = parse_url($urlBase, PHP_URL_PORT)   ?: 11434;
 $check   = "{$scheme}://{$host}:{$port}/api/tags";
 
@@ -29,10 +29,10 @@ if ($resp !== false && $code === 200) {
     ], JSON_UNESCAPED_UNICODE);
 } else {
     $motivo = match(true) {
-        str_contains($cerr, "Connection refused")   => "Ollama no está ejecutándose en la VM. Ejecuta: ollama serve",
-        str_contains($cerr, "timed out")            => "La VM tarda en responder. Puede estar apagada o sobrecargada.",
-        str_contains($cerr, "Could not resolve")    => "No se puede resolver el host. Verifica la IP de la VM.",
-        str_contains($cerr, "Network unreachable")  => "La VM no es accesible en la red.",
+        str_contains($cerr, "Connection refused")   => "Ollama local no está ejecutándose. Abre Ollama o ejecuta: ollama serve",
+        str_contains($cerr, "timed out")            => "Ollama local tarda en responder. Puede estar cargando el modelo.",
+        str_contains($cerr, "Could not resolve")    => "No se puede resolver el host. Verifica OLLAMA_URL.",
+        str_contains($cerr, "Network unreachable")  => "Ollama local no es accesible.",
         default                                     => $cerr ?: "HTTP {$code}",
     };
     echo json_encode([

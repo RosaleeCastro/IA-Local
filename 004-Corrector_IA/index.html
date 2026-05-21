@@ -1324,7 +1324,7 @@
             const s = ((Date.now() - t0) / 1000).toFixed(1);
             si("Completado.", "ok");
             sd("Listo para usar.", "ok");
-            tinfo.textContent = s + "s · " + (res.body.modelo || "mistral");
+            tinfo.textContent = s + "s · " + (res.body.modelo || "llama3:latest");
           })
           .catch((e) => {
             out.textContent = "";

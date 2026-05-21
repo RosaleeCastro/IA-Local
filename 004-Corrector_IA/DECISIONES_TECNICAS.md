@@ -2,14 +2,14 @@
 
 ## Objetivo del proyecto
 
-Esta aplicacion convierte texto escrito o dictado por voz en un mensaje mejor formateado con ayuda de una IA ejecutada en una VM Ubuntu Server con Ollama.
+Esta aplicacion convierte texto escrito o dictado por voz en un mensaje mejor formateado con ayuda de una IA ejecutada en Ollama local.
 
 El flujo principal es:
 
 1. La persona usuaria escribe o dicta un texto.
 2. El navegador muestra el contenido en tiempo real en el area de entrada.
 3. El `frontend` envia el texto completo al `backend`.
-4. `back.php` reenvia la peticion a Ollama en la VM.
+4. `back.php` reenvia la peticion a Ollama local.
 5. La respuesta corregida se muestra en pantalla y se puede copiar.
 
 ## Decisiones actuales
@@ -31,27 +31,27 @@ No se llama a Ollama directamente desde el navegador.
 
 Motivo:
 - Evita problemas de CORS.
-- Permite ocultar detalles de red de la VM.
+- Permite ocultar detalles de conexion de Ollama.
 - Facilita cambiar URL, modelo, timeouts y validaciones sin tocar el `frontend`.
 
-### Ollama en VM Ubuntu Server
+### Ollama local
 
-- Host actual por defecto: `192.168.1.43`
+- Host actual por defecto: `localhost`
 - Endpoint actual: `/api/generate`
-- Modelo por defecto: `deepseek-r1:1.5b`
+- Modelo por defecto: `llama3:latest`
 
 Motivo:
-La IA vive fuera de la maquina con XAMPP, asi que el codigo debe tolerar latencia de red y tiempos de carga del modelo.
+La IA vive en la misma maquina que XAMPP, asi que se reduce la dependencia de red y se simplifica el arranque del proyecto.
 
-### Modelo por defecto ligero
+### Modelo por defecto para correccion y redaccion
 
-Se usa `deepseek-r1:1.5b` como modelo por defecto.
+Se usa `llama3:latest` como modelo por defecto.
 
 Motivo:
-Es mas liviano que `ministral-3:3b` y responde mejor en un flujo interactivo de dictado.
+Es un modelo local adecuado para corregir textos, redactar correos y seguir instrucciones de formato con una calidad razonable.
 
 Consecuencia:
-Se prioriza velocidad y disponibilidad frente a calidad maxima de salida.
+Se prioriza una buena calidad de redaccion frente al modelo mas pequeno posible.
 
 ### Envio manual en vez de autoenvio constante
 
@@ -61,7 +61,7 @@ Motivo:
 Evita saturar Ollama mientras la persona esta escribiendo o hablando.
 
 Consecuencia:
-Menos carga para la VM y menos errores por peticiones simultaneas.
+Menos carga para Ollama local y menos errores por peticiones simultaneas.
 
 ### Doble modo de IA segun la intencion del texto
 
@@ -106,12 +106,12 @@ Hubo fallos que no dependian del proyecto sino del sistema operativo o del naveg
 Aprendizaje:
 Antes de depurar `SpeechRecognition`, conviene confirmar que el microfono funciona en otras aplicaciones.
 
-### IP variable de la VM
+### Configuracion local de Ollama
 
-La IP de la VM cambio durante el desarrollo.
+La aplicacion ya no depende de una IP de VM. Por defecto usa `http://localhost:11434/api/generate`.
 
 Aprendizaje:
-Conviene poder configurar la URL por entorno o fijar IP en la red de la VM.
+Conviene poder configurar la URL por entorno si se quiere usar otro host en el futuro.
 
 ### Tiempos de espera
 

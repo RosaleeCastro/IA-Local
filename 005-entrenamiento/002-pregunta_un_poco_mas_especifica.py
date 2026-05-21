@@ -5,7 +5,7 @@ from config import OLLAMA_BASE_URL, OLLAMA_MODEL
 # sin ningun entrenamiento adicional sobre formacion profesional.
 
 try:
-    response = requests.post(
+    response = requests.post(c
         f"{OLLAMA_BASE_URL}/api/generate",
         json={
             "model": OLLAMA_MODEL,
