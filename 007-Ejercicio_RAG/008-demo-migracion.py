@@ -6,7 +6,7 @@ import urllib.parse
 
 OLLAMA_URL = "http://localhost:11434/api/embeddings"
 OLLAMA_GENERATE = "http://localhost:11434/api/generate"
-MODEL_EMBED = "nomic-embed-text:v1.5"
+MODEL_EMBED = "nomic-embed-text:v1.5"  
 MODEL_LLM = "qwen2.5:3b"
 DB_PATH = "chromadb_migracion"
 COLLECTION_NAME = "leyes_migracion"
