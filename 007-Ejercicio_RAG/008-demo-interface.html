@@ -307,8 +307,61 @@
       .respuesta-body {
         padding: 1.5rem 1.5rem 1rem;
         font-size: 15px;
-        line-height: 1.8;
+        line-height: 1.7;
         color: var(--ink2);
+      }
+
+      .respuesta-body p {
+        margin-bottom: 14px;
+      }
+
+      .respuesta-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin: 6px 0 10px;
+      }
+
+      .respuesta-item {
+        display: grid;
+        grid-template-columns: 32px 1fr;
+        gap: 12px;
+        background: var(--cream);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px;
+      }
+
+      .respuesta-num {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--ink);
+        color: var(--gold-lt);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .respuesta-content strong {
+        color: var(--ink);
+        font-weight: 700;
+      }
+
+      .respuesta-content ul {
+        margin: 10px 0 0 18px;
+      }
+
+      .respuesta-content li {
+        margin-bottom: 7px;
+        padding-left: 2px;
+      }
+
+      .respuesta-extra {
+        margin-top: 14px;
+        color: var(--muted);
       }
 
       /* ── ARTICULOS FUENTE ── */
@@ -529,6 +582,113 @@
     </div>
 
     <script>
+      function escapeHTML(texto) {
+        return texto
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function formatoInline(texto) {
+        return escapeHTML(texto).replace(
+          /\*\*(.*?)\*\*/g,
+          "<strong>$1</strong>",
+        );
+      }
+
+      function formatearRespuesta(texto) {
+        const contenedor = document.getElementById("respuestaTexto");
+        contenedor.innerHTML = "";
+
+        const normalizado = texto
+          .replace(/\s+(\d+\.\s+)/g, "\n$1")
+          .replace(/\s+-\s+/g, "\n- ")
+          .replace(/\n{3,}/g, "\n\n")
+          .trim();
+
+        const lineas = normalizado.split(/\n+/).map((linea) => linea.trim());
+        const intro = [];
+        const items = [];
+        const extra = [];
+        let actual = null;
+        let enLista = false;
+
+        lineas.forEach((linea) => {
+          const numerada = linea.match(/^(\d+)\.\s+(.*)$/);
+
+          if (numerada) {
+            actual = {
+              numero: numerada[1],
+              texto: numerada[2],
+              detalles: [],
+            };
+            items.push(actual);
+            enLista = true;
+            return;
+          }
+
+          if (linea.startsWith("- ") && actual) {
+            actual.detalles.push(linea.slice(2));
+            return;
+          }
+
+          if (enLista) {
+            extra.push(linea);
+          } else {
+            intro.push(linea);
+          }
+        });
+
+        intro.forEach((linea) => {
+          const p = document.createElement("p");
+          p.innerHTML = formatoInline(linea);
+          contenedor.appendChild(p);
+        });
+
+        if (items.length) {
+          const lista = document.createElement("div");
+          lista.className = "respuesta-list";
+
+          items.forEach((item) => {
+            const bloque = document.createElement("div");
+            bloque.className = "respuesta-item";
+
+            const numero = document.createElement("span");
+            numero.className = "respuesta-num";
+            numero.textContent = item.numero;
+
+            const contenido = document.createElement("div");
+            contenido.className = "respuesta-content";
+            contenido.innerHTML = formatoInline(item.texto);
+
+            if (item.detalles.length) {
+              const ul = document.createElement("ul");
+              item.detalles.forEach((detalle) => {
+                const li = document.createElement("li");
+                li.innerHTML = formatoInline(detalle);
+                ul.appendChild(li);
+              });
+              contenido.appendChild(ul);
+            }
+
+            bloque.appendChild(numero);
+            bloque.appendChild(contenido);
+            lista.appendChild(bloque);
+          });
+
+          contenedor.appendChild(lista);
+        }
+
+        extra.forEach((linea) => {
+          const p = document.createElement("p");
+          p.className = "respuesta-extra";
+          p.innerHTML = formatoInline(linea);
+          contenedor.appendChild(p);
+        });
+      }
+
       async function enviar() {
         const consulta = document.getElementById("consulta").value.trim();
         if (!consulta) return;
@@ -554,8 +714,7 @@
             ec.textContent = "⚠ " + data.error;
             ec.style.display = "block";
           } else {
-            document.getElementById("respuestaTexto").textContent =
-              data.respuesta;
+            formatearRespuesta(data.respuesta);
 
             const grid = document.getElementById("articulosGrid");
             grid.innerHTML = "";

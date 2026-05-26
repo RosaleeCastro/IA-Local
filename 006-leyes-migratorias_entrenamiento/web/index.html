@@ -4,7 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Consulta local de leyes migratorias</title>
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <main class="app-shell">
@@ -12,7 +15,8 @@
       <header class="topbar">
         <div>
           <p class="eyebrow">Ejercicio 006</p>
-          <h1>Leyes migratorias</h1>
+          <h1>Consulta local de leyes migratorias</h1>
+          <p class="subtitle">Asistente entrenado con ejemplos JSONL y respuesta local con Ollama.</p>
         </div>
         <div class="status">
           <span class="status-dot"></span>
@@ -22,21 +26,24 @@
 
       <div class="content-grid">
         <aside class="side-panel" aria-label="Datos del sistema">
-          <div class="metric">
-            <span class="metric-label">Motor</span>
-            <strong id="modelName">Ollama</strong>
-          </div>
-          <div class="metric">
-            <span class="metric-label">Dataset</span>
-            <strong id="datasetSize">JSONL</strong>
-          </div>
-          <div class="metric">
-            <span class="metric-label">Ultima fuente</span>
-            <strong id="lastSource">Sin consulta</strong>
+          <div class="panel-section system-card">
+            <p class="panel-title">Sistema</p>
+            <div class="metric">
+              <span class="metric-label">Motor</span>
+              <strong id="modelName">Ollama</strong>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Dataset</span>
+              <strong id="datasetSize">JSONL</strong>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Última fuente</span>
+              <strong id="lastSource">Sin consulta</strong>
+            </div>
           </div>
 
-          <div class="quick-area">
-            <p class="panel-title">Preguntas rapidas</p>
+          <div class="panel-section quick-area">
+            <p class="panel-title">Preguntas rápidas</p>
             <button class="quick-btn" type="button">¿Qué es el NIE?</button>
             <button class="quick-btn" type="button">¿Qué es el arraigo social?</button>
             <button class="quick-btn" type="button">¿Qué diferencia hay entre estancia y residencia?</button>
@@ -47,6 +54,7 @@
         <section class="chat-panel" aria-label="Chat">
           <div id="chatLog" class="chat-log" aria-live="polite">
             <article class="message assistant">
+              <div class="avatar" aria-hidden="true">IA</div>
               <div class="bubble">
                 Pregunta sobre residencia, NIE, arraigo, reagrupación familiar o estancia. Si encuentro una coincidencia clara, respondo desde el JSONL; si no, uso Ollama con contexto.
               </div>
@@ -55,7 +63,10 @@
 
           <form id="askForm" class="composer">
             <label class="sr-only" for="questionInput">Pregunta</label>
-            <textarea id="questionInput" rows="2" placeholder="Escribe tu pregunta..." required></textarea>
+            <div class="input-wrap">
+              <textarea id="questionInput" rows="2" placeholder="Escribe tu pregunta..." required></textarea>
+              <span id="charCount" class="char-count">0</span>
+            </div>
             <button id="sendButton" type="submit" aria-label="Enviar pregunta">
               <span>Enviar</span>
             </button>
@@ -65,6 +76,6 @@
     </section>
   </main>
 
-  <script src="/app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
